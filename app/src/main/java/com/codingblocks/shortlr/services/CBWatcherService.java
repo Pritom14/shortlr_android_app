@@ -56,6 +56,7 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate: service created");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
     }
 
