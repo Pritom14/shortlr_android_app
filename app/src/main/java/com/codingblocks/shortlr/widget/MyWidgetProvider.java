@@ -66,6 +66,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(final Context context, Intent intent) {
         super.onReceive(context, intent);
+        Log.d(TAG, "onReceive: action=" + intent.getAction());
         SharedPreferences sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         String url = sharedPreferences.getString("url", "");
         setTextOnTv(context, url);
