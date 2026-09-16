@@ -38,6 +38,7 @@ public class Utils {
     }
 
     public static String saveToClipboard(String text, Context context) {
+        Log.d(TAG, "saveToClipboard: saving text to clipboard");
         ClipData myClip;
 
         myClip = ClipData.newPlainText("text", text);
