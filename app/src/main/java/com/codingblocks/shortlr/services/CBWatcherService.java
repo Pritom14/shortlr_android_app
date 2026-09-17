@@ -35,15 +35,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class CBWatcherService extends Service {
-    private final String TAG = "MyWatcherService";
+    private static final String TAG = "CBWatcherService";
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
+            Log.d(TAG, "onPrimaryClipChanged: clipboard content changed");
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(CBWatcherService.this)) {
                     performClipboardCheck();
                 } else {
+                    Log.d(TAG, "onPrimaryClipChanged: overlay permission missing, requesting it");
                     Intent i = new Intent(CBWatcherService.this, GetPermissionActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
@@ -56,6 +58,7 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate: ");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
     }
 
@@ -70,7 +73,14 @@ public class CBWatcherService extends Service {
         return null;
     }
 
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
+        super.onDestroy();
+    }
+
     private void performClipboardCheck() {
+        Log.d(TAG, "performClipboardCheck: checking clipboard for a shortenable URL");
         ClipboardManager cb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cb.hasPrimaryClip()) {
             ClipData cd = cb.getPrimaryClip();
@@ -81,6 +91,7 @@ public class CBWatcherService extends Service {
                 Matcher m = p.matcher(clipboardText);
                 if (m.find()) {
                     if (!Utils.getHost(clipboardText).equals("cb.lk")) {
+                        Log.d(TAG, "performClipboardCheck: URL found in clipboard, showing prompt");
                         showView(clipboardText);
                     }
                 }
@@ -121,12 +132,14 @@ public class CBWatcherService extends Service {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         String shortUrl = "cb.lk/" + response.body().getShortcode();
+                        Log.d(TAG, "onResponse: shortened URL to " + shortUrl);
                         Utils.saveToClipboard(shortUrl, CBWatcherService.this);
                         manager.removeView(view);
                     }
 
                     @Override
                     public void onFailure(Call<Result> call, Throwable t) {
+                        Log.d(TAG, "onFailure: failed to shorten URL", t);
                         t.printStackTrace();
                     }
                 });
