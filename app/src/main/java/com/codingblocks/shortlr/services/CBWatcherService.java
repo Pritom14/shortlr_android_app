@@ -35,10 +35,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class CBWatcherService extends Service {
-    private final String TAG = "MyWatcherService";
+    private static final String TAG = CBWatcherService.class.getSimpleName();
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
+            Log.d(TAG, "onPrimaryClipChanged: clipboard content changed");
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(CBWatcherService.this)) {
@@ -56,21 +57,24 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate: registering clipboard listener");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: ");
+        Log.d(TAG, "onStartCommand: service starting");
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: binding not supported");
         return null;
     }
 
     private void performClipboardCheck() {
+        Log.d(TAG, "performClipboardCheck: checking clipboard for a URL");
         ClipboardManager cb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cb.hasPrimaryClip()) {
             ClipData cd = cb.getPrimaryClip();
@@ -90,6 +94,7 @@ public class CBWatcherService extends Service {
     }
 
     public void showView(final String url) {
+        Log.d(TAG, "showView: displaying shorten prompt for URL: " + url);
         final WindowManager manager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.gravity = Gravity.CENTER;
