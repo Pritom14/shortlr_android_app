@@ -20,12 +20,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ShortenActivity extends Activity {
-    public static final String TAG = "ShortenAct";
+    private static final String TAG = "ShortenActivity";
     public static final String ACTION_MAIN = "android.intent.action.MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: action=" + getIntent().getAction());
         setContentView(R.layout.activity_shorten);
         startWatcherService();
 
@@ -40,6 +41,7 @@ public class ShortenActivity extends Activity {
             if (Utils.isUrl(url)) {
                 shorten(readOnly, url);
             } else {
+                Log.d(TAG, "onCreate: not a valid URL, aborting");
                 Toast.makeText(this, getString(R.string.not_a_url), Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -47,6 +49,7 @@ public class ShortenActivity extends Activity {
     }
 
     private void shorten(final Boolean readOnly, String urlToShort) {
+        Log.d(TAG, "shorten: requesting short URL for " + urlToShort);
         PostBody postBody = new PostBody(urlToShort, "", "");
         String urlToPost = getString(R.string.api_endpoint);
 
@@ -61,6 +64,7 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.d(TAG, "onResponse: received shortcode response");
                 String replacementText = getString(R.string.short_code_prepend) + response.body().getShortcode();
                 if (readOnly) {
                     Utils.saveToClipboard(replacementText, ShortenActivity.this);
@@ -73,12 +77,14 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.d(TAG, "onFailure: shorten request failed", t);
                 t.printStackTrace();
             }
         });
     }
 
     private void startWatcherService() {
+        Log.d(TAG, "startWatcherService: starting CBWatcherService");
         Intent i = new Intent(this, CBWatcherService.class);
         startService(i);
     }
