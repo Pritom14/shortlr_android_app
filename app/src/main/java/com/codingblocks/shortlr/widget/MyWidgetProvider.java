@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyWidgetProvider extends AppWidgetProvider {
 
-    public static final String TAG = "MyWidgetProvider";
+    private static final String TAG = "MyWidgetProvider";
     private static final String ShortenClick = "myOnClickTag1";
     private static final String PasteClick = "myOnClickTag2";
     public static final String MyPREFERENCES = "Prefs";
@@ -66,6 +66,9 @@ public class MyWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(final Context context, Intent intent) {
         super.onReceive(context, intent);
+
+        Log.d(TAG, "onReceive: " + intent.getAction());
+
         SharedPreferences sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         String url = sharedPreferences.getString("url", "");
         setTextOnTv(context, url);
@@ -104,6 +107,8 @@ public class MyWidgetProvider extends AppWidgetProvider {
     }
 
     public void getShortenedUrl(String url, final Context context) {
+        Log.d(TAG, "getShortenedUrl: " + url);
+
         PostBody postBody = new PostBody(url, "", "");
         final String[] shortURL = {""};
         String urlToPost = "http://cb.lk/api/v1/";
@@ -129,6 +134,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.d(TAG, "onFailure: " + t.getMessage());
                 t.printStackTrace();
             }
         });
