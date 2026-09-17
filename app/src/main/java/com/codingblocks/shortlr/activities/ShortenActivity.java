@@ -26,27 +26,51 @@ public class ShortenActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: called");
         setContentView(R.layout.activity_shorten);
         startWatcherService();
 
         if (getIntent().getAction().equals(ACTION_MAIN)) {
             // This is the for the first time app is launched.
+            Log.i(TAG, "onCreate: launched via ACTION_MAIN, finishing without action");
             finish();
         } else {
             String url = getIntent()
                     .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString();
             boolean readOnly = getIntent()
                     .getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
+            Log.d(TAG, "onCreate: received text to process, readOnly=" + readOnly);
             if (Utils.isUrl(url)) {
+                Log.i(TAG, "onCreate: valid URL received, shortening");
                 shorten(readOnly, url);
             } else {
+                Log.i(TAG, "onCreate: text is not a valid URL, aborting");
                 Toast.makeText(this, getString(R.string.not_a_url), Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: called");
+    }
+
     private void shorten(final Boolean readOnly, String urlToShort) {
+        Log.i(TAG, "shorten: user requested shortening of URL");
         PostBody postBody = new PostBody(urlToShort, "", "");
         String urlToPost = getString(R.string.api_endpoint);
 
@@ -57,12 +81,16 @@ public class ShortenActivity extends Activity {
                 .build();
 
         ShortenApi shortenApi = retrofit.create(ShortenApi.class);
+        Log.d(TAG, "shorten: sending API request to " + urlToPost);
         shortenApi.getResult(postBody).enqueue(new Callback<Result>() {
 
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.i(TAG, "shorten: API response received, code=" + response.code());
                 String replacementText = getString(R.string.short_code_prepend) + response.body().getShortcode();
+                Log.d(TAG, "shorten: shortcode received=" + response.body().getShortcode());
                 if (readOnly) {
+                    Log.d(TAG, "shorten: readOnly, copying result to clipboard");
                     Utils.saveToClipboard(replacementText, ShortenActivity.this);
                 }
                 Intent intent = new Intent();
@@ -73,12 +101,14 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.e(TAG, "shorten: API call failed", t);
                 t.printStackTrace();
             }
         });
     }
 
     private void startWatcherService() {
+        Log.d(TAG, "startWatcherService: starting CBWatcherService");
         Intent i = new Intent(this, CBWatcherService.class);
         startService(i);
     }
