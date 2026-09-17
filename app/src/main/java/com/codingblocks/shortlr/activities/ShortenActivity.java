@@ -25,6 +25,7 @@ public class ShortenActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: starting ShortenActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shorten);
         startWatcherService();
@@ -47,6 +48,7 @@ public class ShortenActivity extends Activity {
     }
 
     private void shorten(final Boolean readOnly, String urlToShort) {
+        Log.d(TAG, "shorten: requesting short url for " + urlToShort);
         PostBody postBody = new PostBody(urlToShort, "", "");
         String urlToPost = getString(R.string.api_endpoint);
 
@@ -61,6 +63,7 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.d(TAG, "onResponse: received short url response");
                 String replacementText = getString(R.string.short_code_prepend) + response.body().getShortcode();
                 if (readOnly) {
                     Utils.saveToClipboard(replacementText, ShortenActivity.this);
@@ -73,12 +76,14 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.d(TAG, "onFailure: short url request failed");
                 t.printStackTrace();
             }
         });
     }
 
     private void startWatcherService() {
+        Log.d(TAG, "startWatcherService: starting CBWatcherService");
         Intent i = new Intent(this, CBWatcherService.class);
         startService(i);
     }
