@@ -45,7 +45,10 @@ public class MyWidgetProvider extends AppWidgetProvider {
         ComponentName thisWidget = new ComponentName(context,
                 MyWidgetProvider.class);
         int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+        Log.i(TAG, "onUpdate: updating " + allWidgetIds.length + " widget(s)");
         for (int widgetId : allWidgetIds) {
+
+            Log.d(TAG, "onUpdate: configuring widget id " + widgetId);
 
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
@@ -58,6 +61,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     }
 
     protected PendingIntent getPendingSelfIntent(Context context, String action) {
+        Log.d(TAG, "getPendingSelfIntent: action=" + action);
         Intent intent = new Intent(context, getClass());
         intent.setAction(action);
         return PendingIntent.getBroadcast(context, 0, intent, 0);
@@ -66,14 +70,18 @@ public class MyWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(final Context context, Intent intent) {
         super.onReceive(context, intent);
+        Log.d(TAG, "onReceive: action=" + intent.getAction());
         SharedPreferences sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         String url = sharedPreferences.getString("url", "");
         setTextOnTv(context, url);
         if (ShortenClick.equals(intent.getAction())) {
+            Log.d(TAG, "onReceive: shorten click received for url=" + url);
             if (!Utils.isUrl(url)) {
+                Log.e(TAG, "onReceive: invalid url, cannot shorten: " + url);
                 Toast.makeText(context, "Not a url", Toast.LENGTH_SHORT).show();
             } else {
                 if (Utils.getHost(url).equals("cb.lk")) {
+                    Log.i(TAG, "onReceive: url is already shortened: " + url);
                     Toast.makeText(context, "Already a short url", Toast.LENGTH_SHORT).show();
                 } else {
                     getShortenedUrl(url, context);
@@ -82,13 +90,16 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
         } else if (PasteClick.equals(intent.getAction())) {
 
+            Log.d(TAG, "onReceive: paste click received");
             String text = Utils.getFromClip(context);
+            Log.d(TAG, "onReceive: pasted text=" + text);
             setTextOnTv(context, text);
             saveToSharedPrefs(text, context);
         }
     }
 
     private void saveToSharedPrefs(String str, Context context) {
+        Log.d(TAG, "saveToSharedPrefs: saving url=" + str);
         SharedPreferences sharedpreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString("url", str);
@@ -96,6 +107,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     }
 
     private void setTextOnTv(Context context, String text) {
+        Log.d(TAG, "setTextOnTv: text=" + text);
         RemoteViews views = new RemoteViews(context.getPackageName(),
                 R.layout.widget_layout);
         views.setTextViewText(R.id.widget_tv_url, text);
@@ -104,6 +116,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     }
 
     public void getShortenedUrl(String url, final Context context) {
+        Log.i(TAG, "getShortenedUrl: requesting shortened url for " + url);
         PostBody postBody = new PostBody(url, "", "");
         final String[] shortURL = {""};
         String urlToPost = "http://cb.lk/api/v1/";
@@ -115,10 +128,16 @@ public class MyWidgetProvider extends AppWidgetProvider {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
 
+                if (response.body() == null) {
+                    Log.e(TAG, "onResponse: empty response body for url=" + url);
+                    return;
+                }
+
                 shortURL[0] = "cb.lk/" + response.body().getShortcode();
 
                 Log.d(TAG, "onResponse: " + response.body().getLongURL());
                 Log.d(TAG, "onResponse: " + shortURL[0]);
+                Log.i(TAG, "onResponse: successfully shortened url to " + shortURL[0]);
 
 
                 saveToSharedPrefs(shortURL[0], context);
@@ -129,6 +148,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.e(TAG, "onFailure: failed to shorten url=" + url, t);
                 t.printStackTrace();
             }
         });
