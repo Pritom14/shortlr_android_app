@@ -39,6 +39,7 @@ public class CBWatcherService extends Service {
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
+            Log.d(TAG, "onPrimaryClipChanged: clipboard change detected, starting monitoring check");
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(CBWatcherService.this)) {
@@ -56,6 +57,7 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG, "onCreate: CBWatcherService starting up");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
     }
 
@@ -70,7 +72,14 @@ public class CBWatcherService extends Service {
         return null;
     }
 
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "onDestroy: CBWatcherService shutting down");
+        super.onDestroy();
+    }
+
     private void performClipboardCheck() {
+        Log.d(TAG, "performClipboardCheck: checking clipboard contents");
         ClipboardManager cb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cb.hasPrimaryClip()) {
             ClipData cd = cb.getPrimaryClip();
@@ -80,6 +89,7 @@ public class CBWatcherService extends Service {
                 Pattern p = Pattern.compile(URL_REGEX);
                 Matcher m = p.matcher(clipboardText);
                 if (m.find()) {
+                    Log.i(TAG, "performClipboardCheck: URL detected in clipboard, processing data");
                     if (!Utils.getHost(clipboardText).equals("cb.lk")) {
                         showView(clipboardText);
                     }
