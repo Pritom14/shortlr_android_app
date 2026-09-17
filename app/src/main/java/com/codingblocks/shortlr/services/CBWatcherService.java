@@ -39,11 +39,13 @@ public class CBWatcherService extends Service {
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
+            Log.d(TAG, "onPrimaryClipChanged: clipboard change detected");
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(CBWatcherService.this)) {
                     performClipboardCheck();
                 } else {
+                    Log.d(TAG, "onPrimaryClipChanged: overlay permission missing, requesting it");
                     Intent i = new Intent(CBWatcherService.this, GetPermissionActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
@@ -56,13 +58,24 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG, "onCreate: service created");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
+        Log.d(TAG, "onCreate: primary clip changed listener registered");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: ");
+        Log.i(TAG, "onStartCommand: service started with startId=" + startId);
+        Log.d(TAG, "onStartCommand: returning START_STICKY");
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "onDestroy: service destroyed");
+        ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).removePrimaryClipChangedListener(listener);
+        Log.d(TAG, "onDestroy: primary clip changed listener removed");
+        super.onDestroy();
     }
 
     @Override
@@ -71,6 +84,7 @@ public class CBWatcherService extends Service {
     }
 
     private void performClipboardCheck() {
+        Log.d(TAG, "performClipboardCheck: checking clipboard contents");
         ClipboardManager cb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cb.hasPrimaryClip()) {
             ClipData cd = cb.getPrimaryClip();
@@ -80,12 +94,19 @@ public class CBWatcherService extends Service {
                 Pattern p = Pattern.compile(URL_REGEX);
                 Matcher m = p.matcher(clipboardText);
                 if (m.find()) {
+                    Log.i(TAG, "performClipboardCheck: URL found in clipboard");
                     if (!Utils.getHost(clipboardText).equals("cb.lk")) {
                         showView(clipboardText);
+                    } else {
+                        Log.d(TAG, "performClipboardCheck: URL already shortened, skipping");
                     }
+                } else {
+                    Log.d(TAG, "performClipboardCheck: clipboard text is not a URL");
                 }
 
             }
+        } else {
+            Log.d(TAG, "performClipboardCheck: no primary clip available");
         }
     }
 
