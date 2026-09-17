@@ -26,6 +26,7 @@ public class ShortenActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: ShortenActivity created");
         setContentView(R.layout.activity_shorten);
         startWatcherService();
 
@@ -38,12 +39,25 @@ public class ShortenActivity extends Activity {
             boolean readOnly = getIntent()
                     .getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
             if (Utils.isUrl(url)) {
+                Log.d(TAG, "onCreate: shorten action triggered for url=" + url);
                 shorten(readOnly, url);
             } else {
                 Toast.makeText(this, getString(R.string.not_a_url), Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ShortenActivity resumed");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ShortenActivity paused");
     }
 
     private void shorten(final Boolean readOnly, String urlToShort) {
@@ -57,10 +71,12 @@ public class ShortenActivity extends Activity {
                 .build();
 
         ShortenApi shortenApi = retrofit.create(ShortenApi.class);
+        Log.i(TAG, "shorten: calling API at " + urlToPost);
         shortenApi.getResult(postBody).enqueue(new Callback<Result>() {
 
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.i(TAG, "shorten: API call succeeded with code " + response.code());
                 String replacementText = getString(R.string.short_code_prepend) + response.body().getShortcode();
                 if (readOnly) {
                     Utils.saveToClipboard(replacementText, ShortenActivity.this);
@@ -73,6 +89,7 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
+                Log.e(TAG, "shorten: API call failed", t);
                 t.printStackTrace();
             }
         });
