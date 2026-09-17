@@ -44,6 +44,7 @@ public class Utils {
         ClipboardManager myClipboard;
         myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
         myClipboard.setPrimaryClip(myClip);
+        Log.d(TAG, "Saving text to clipboard: " + text);
         Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
         return text;
     }
