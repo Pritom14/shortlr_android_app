@@ -7,10 +7,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.codingblocks.shortlr.R;
 
 public class GetPermissionActivity extends Activity {
+    private static final String TAG = GetPermissionActivity.class.getSimpleName();
+
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREFS = "sp_permission_count";
     private static final String PERMISSION = "Permission";
@@ -18,14 +21,17 @@ public class GetPermissionActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: starting GetPermissionActivity");
         setContentView(R.layout.activity_get_permission);
 
         sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(GetPermissionActivity.this)) {
+                Log.d(TAG, "onCreate: overlay permission not granted");
                 int num = sharedPreferences.getInt(PERMISSION, 0);
                 if (num == 0) {
+                    Log.d(TAG, "onCreate: requesting overlay permission for the first time");
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt(PERMISSION, num + 1);
                     editor.apply();
