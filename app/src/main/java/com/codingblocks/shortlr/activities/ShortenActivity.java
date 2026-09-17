@@ -26,6 +26,7 @@ public class ShortenActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: ShortenActivity started");
         setContentView(R.layout.activity_shorten);
         startWatcherService();
 
