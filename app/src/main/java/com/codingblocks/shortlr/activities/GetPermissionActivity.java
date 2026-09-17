@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.codingblocks.shortlr.R;
 
@@ -14,10 +15,12 @@ public class GetPermissionActivity extends Activity {
     SharedPreferences sharedPreferences;
     private static final String SHARED_PREFS = "sp_permission_count";
     private static final String PERMISSION = "Permission";
+    private static final String TAG = "GetPermissionActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: GetPermissionActivity started");
         setContentView(R.layout.activity_get_permission);
 
         sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
