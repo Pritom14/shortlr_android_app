@@ -33,6 +33,9 @@ public class Utils {
             ClipData.Item item = abc.getItemAt(0);
             String text = item.getText().toString();
             retVal = text;
+            Log.d(TAG, "getFromClip: retrieved clipboard content, length=" + text.length());
+        } else {
+            Log.d(TAG, "getFromClip: clipboard is empty");
         }
         return retVal;
     }
@@ -44,27 +47,35 @@ public class Utils {
         ClipboardManager myClipboard;
         myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
         myClipboard.setPrimaryClip(myClip);
+        Log.d(TAG, "saveToClipboard: saved content to clipboard, length=" + (text != null ? text.length() : 0));
         Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
         return text;
     }
 
     public static String getHost(String url) {
-        if (url == null || url.length() == 0)
+        Log.d(TAG, "getHost: parsing url=" + url);
+        if (url == null || url.length() == 0) {
+            Log.d(TAG, "getHost: url is null or empty, returning empty string");
             return "";
+        }
 
         int doubleslash = url.indexOf("//");
         if (doubleslash == -1)
             doubleslash = 0;
         else
             doubleslash += 2;
+        Log.d(TAG, "getHost: scheme separator index=" + doubleslash);
 
         int end = url.indexOf('/', doubleslash);
         end = end >= 0 ? end : url.length();
 
         int port = url.indexOf(':', doubleslash);
         end = (port > 0 && port < end) ? port : end;
+        Log.d(TAG, "getHost: host end index=" + end);
 
-        return url.substring(doubleslash, end);
+        String host = url.substring(doubleslash, end);
+        Log.d(TAG, "getHost: resolved host=" + host);
+        return host;
     }
 
     private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
@@ -72,7 +83,9 @@ public class Utils {
     public static boolean isUrl(String str) {
         Pattern p = Pattern.compile(URL_REGEX);
         Matcher m = p.matcher(str);//replace with string to compare
-        return m.find();
+        boolean result = m.find();
+        Log.d(TAG, "isUrl: str=" + str + " isValid=" + result);
+        return result;
     }
 
 }
