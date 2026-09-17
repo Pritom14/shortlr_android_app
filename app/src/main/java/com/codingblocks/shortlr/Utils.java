@@ -25,6 +25,7 @@ public class Utils {
     public static final String TAG = "Utils";
 
     public static String getFromClip(Context context) {
+        Log.d(TAG, "getFromClip: reading text from the system clipboard");
         String retVal = null;
         ClipboardManager myClipboard;
         myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
@@ -34,10 +35,12 @@ public class Utils {
             String text = item.getText().toString();
             retVal = text;
         }
+        Log.i(TAG, "getFromClip: returning clipboard text = " + retVal);
         return retVal;
     }
 
     public static String saveToClipboard(String text, Context context) {
+        Log.d(TAG, "saveToClipboard: saving text to clipboard, text = " + text);
         ClipData myClip;
 
         myClip = ClipData.newPlainText("text", text);
@@ -45,12 +48,16 @@ public class Utils {
         myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
         myClipboard.setPrimaryClip(myClip);
         Toast.makeText(context, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "saveToClipboard: text copied to clipboard successfully");
         return text;
     }
 
     public static String getHost(String url) {
-        if (url == null || url.length() == 0)
+        Log.d(TAG, "getHost: extracting host from url = " + url);
+        if (url == null || url.length() == 0) {
+            Log.i(TAG, "getHost: url is null or empty, returning empty string");
             return "";
+        }
 
         int doubleslash = url.indexOf("//");
         if (doubleslash == -1)
@@ -64,15 +71,20 @@ public class Utils {
         int port = url.indexOf(':', doubleslash);
         end = (port > 0 && port < end) ? port : end;
 
-        return url.substring(doubleslash, end);
+        String host = url.substring(doubleslash, end);
+        Log.i(TAG, "getHost: resolved host = " + host);
+        return host;
     }
 
     private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
 
     public static boolean isUrl(String str) {
+        Log.d(TAG, "isUrl: checking whether string matches url pattern, str = " + str);
         Pattern p = Pattern.compile(URL_REGEX);
         Matcher m = p.matcher(str);//replace with string to compare
-        return m.find();
+        boolean matches = m.find();
+        Log.i(TAG, "isUrl: match result = " + matches);
+        return matches;
     }
 
 }
