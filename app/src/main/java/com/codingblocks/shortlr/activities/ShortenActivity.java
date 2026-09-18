@@ -3,7 +3,6 @@ package com.codingblocks.shortlr.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.codingblocks.shortlr.models.PostBody;
@@ -18,9 +17,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 public class ShortenActivity extends Activity {
-    public static final String TAG = "ShortenAct";
     public static final String ACTION_MAIN = "android.intent.action.MAIN";
 
     @Override
@@ -73,7 +72,7 @@ public class ShortenActivity extends Activity {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-                t.printStackTrace();
+                Timber.e(t, "shorten failed");
             }
         });
     }
