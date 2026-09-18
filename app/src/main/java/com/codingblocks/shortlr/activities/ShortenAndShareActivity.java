@@ -27,9 +27,12 @@ public class ShortenAndShareActivity extends Activity {
         setContentView(R.layout.activity_shorten_and_share);
 
 
+        Log.d(TAG, "onCreate: ");
+
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
+        Log.d(TAG, "onCreate: action=" + action + ", type=" + type);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
@@ -47,12 +50,14 @@ public class ShortenAndShareActivity extends Activity {
                     Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(urlToPost).build();
                     ShortenApi shortenApi = retrofit.create(ShortenApi.class);
 
+                    Log.d(TAG, "onCreate: sending shorten request for " + urlToShort);
                     shortenApi.getResult(postBody).enqueue(new Callback<Result>() {
 
                         @Override
                         public void onResponse(Call<Result> call, Response<Result> response) {
 
                             String shortenedURL = "cb.lk/" + response.body().getShortcode();
+                            Log.d(TAG, "onResponse: " + shortenedURL);
                             Intent i = new Intent(Intent.ACTION_SEND);
                             i.setType("text/plain");
                             i.putExtra(Intent.EXTRA_SUBJECT, "Sharing URL");
@@ -63,6 +68,7 @@ public class ShortenAndShareActivity extends Activity {
 
                         @Override
                         public void onFailure(Call<Result> call, Throwable t) {
+                            Log.d(TAG, "onFailure: " + t.getMessage());
                             t.printStackTrace();
                         }
                     });
