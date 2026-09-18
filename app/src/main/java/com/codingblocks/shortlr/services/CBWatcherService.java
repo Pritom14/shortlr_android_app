@@ -39,6 +39,7 @@ public class CBWatcherService extends Service {
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
+            Log.d(TAG, "onPrimaryClipChanged: clipboard change detected");
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(CBWatcherService.this)) {
@@ -56,6 +57,7 @@ public class CBWatcherService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate: registering clipboard listener");
         ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
     }
 
@@ -67,7 +69,14 @@ public class CBWatcherService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: ");
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
+        super.onDestroy();
     }
 
     private void performClipboardCheck() {
@@ -81,6 +90,7 @@ public class CBWatcherService extends Service {
                 Matcher m = p.matcher(clipboardText);
                 if (m.find()) {
                     if (!Utils.getHost(clipboardText).equals("cb.lk")) {
+                        Log.d(TAG, "performClipboardCheck: shortenable url found - " + clipboardText);
                         showView(clipboardText);
                     }
                 }
