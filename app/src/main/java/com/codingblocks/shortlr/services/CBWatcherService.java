@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,10 +31,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 
 public class CBWatcherService extends Service {
-    private final String TAG = "MyWatcherService";
     public static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private OnPrimaryClipChangedListener listener = new OnPrimaryClipChangedListener() {
         public void onPrimaryClipChanged() {
@@ -61,7 +60,7 @@ public class CBWatcherService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: ");
+        Timber.d("onStartCommand: ");
         return START_STICKY;
     }
 
@@ -127,7 +126,7 @@ public class CBWatcherService extends Service {
 
                     @Override
                     public void onFailure(Call<Result> call, Throwable t) {
-                        t.printStackTrace();
+                        Timber.e(t, "showView shorten failed");
                     }
                 });
 
