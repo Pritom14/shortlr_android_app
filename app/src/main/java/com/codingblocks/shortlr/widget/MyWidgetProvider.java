@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -22,6 +21,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 /**
  * Created by piyush0 on 11/04/17.
@@ -29,7 +29,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyWidgetProvider extends AppWidgetProvider {
 
-    public static final String TAG = "MyWidgetProvider";
     private static final String ShortenClick = "myOnClickTag1";
     private static final String PasteClick = "myOnClickTag2";
     public static final String MyPREFERENCES = "Prefs";
@@ -39,7 +38,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager,
                          int[] appWidgetIds) {
 
-        Log.d(TAG, "onUpdate: ");
+        Timber.d("onUpdate: ");
 
         // Get all ids
         ComponentName thisWidget = new ComponentName(context,
@@ -117,8 +116,8 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
                 shortURL[0] = "cb.lk/" + response.body().getShortcode();
 
-                Log.d(TAG, "onResponse: " + response.body().getLongURL());
-                Log.d(TAG, "onResponse: " + shortURL[0]);
+                Timber.d("onResponse: %s", response.body().getLongURL());
+                Timber.d("onResponse: %s", shortURL[0]);
 
 
                 saveToSharedPrefs(shortURL[0], context);
@@ -129,7 +128,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-                t.printStackTrace();
+                Timber.e(t, "getShortenedUrl failed");
             }
         });
 

@@ -3,7 +3,6 @@ package com.codingblocks.shortlr;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.regex.Matcher;
@@ -22,7 +21,6 @@ import static android.content.Context.CLIPBOARD_SERVICE;
  */
 
 public class Utils {
-    public static final String TAG = "Utils";
 
     public static String getFromClip(Context context) {
         String retVal = null;
