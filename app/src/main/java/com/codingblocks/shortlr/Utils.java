@@ -25,6 +25,7 @@ public class Utils {
     public static final String TAG = "Utils";
 
     public static String getFromClip(Context context) {
+        Log.d(TAG, "getFromClip: reading text from clipboard");
         String retVal = null;
         ClipboardManager myClipboard;
         myClipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
@@ -33,11 +34,14 @@ public class Utils {
             ClipData.Item item = abc.getItemAt(0);
             String text = item.getText().toString();
             retVal = text;
+        } else {
+            Log.w(TAG, "getFromClip: clipboard is empty");
         }
         return retVal;
     }
 
     public static String saveToClipboard(String text, Context context) {
+        Log.d(TAG, "saveToClipboard: saving text to clipboard: " + text);
         ClipData myClip;
 
         myClip = ClipData.newPlainText("text", text);
@@ -49,6 +53,7 @@ public class Utils {
     }
 
     public static String getHost(String url) {
+        Log.d(TAG, "getHost: extracting host from url: " + url);
         if (url == null || url.length() == 0)
             return "";
 
@@ -72,7 +77,9 @@ public class Utils {
     public static boolean isUrl(String str) {
         Pattern p = Pattern.compile(URL_REGEX);
         Matcher m = p.matcher(str);//replace with string to compare
-        return m.find();
+        boolean result = m.find();
+        Log.d(TAG, "isUrl: \"" + str + "\" is valid url: " + result);
+        return result;
     }
 
 }
